@@ -84,7 +84,7 @@ python3 -m sglang.launch_server \
    --attention-backend flashinfer \
    --keep-mm-feature-on-device \
    --trust-remote-code
-```
+
 # In a separate terminal, launch server for model 2 (port 30001) if needed
 # python3 -m sglang.launch_server --model-path ... --port 30001
 ```
