@@ -1,0 +1,30 @@
+models:
+  - name: "Qwen3-VL-8B"
+    model_path: "Qwen/Qwen3-VL-8B-Instruct"
+    port: 30000
+    host: "localhost"
+    attention_backend: "flashinfer"
+    mm_attention_backend: "flashinfer"
+    enabled: true
+
+  # Add more models below
+  # - name: "Llava-1.6"
+  #   model_path: "llavav1.6"
+  #   port: 30001
+  #   host: "localhost"
+  #   attention_backend: "flashinfer"
+  #   mm_attention_backend: "flashinfer"
+  #   enabled: false
+
+inference:
+  max_tokens: 1024
+  temperature: 0.0  # Set to 0 for precise counting tasks
+  timeout: 60  # seconds
+
+directories:
+  videos: "./videos"
+  results: "./results"
+
+logging:
+  level: "INFO"
+  log_file: "./inference.log"
