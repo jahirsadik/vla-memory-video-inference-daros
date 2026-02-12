@@ -38,6 +38,7 @@ videos/*.mp4
 videos/*.avi
 videos/*.mov
 videos/*.mkv
+videos/*
 results/*.csv
 inference.log
 *.log

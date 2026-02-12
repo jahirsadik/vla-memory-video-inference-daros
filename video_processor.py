@@ -1,11 +1,12 @@
 """
-Video processor for orchestrating multi-model inference
+Video processor for orchestrating multi-model inference with parameter tracking
 """
 
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 import yaml
+import time
 
 from api_client import SGLangAPIClient
 from csv_handler import CSVResultHandler
@@ -135,28 +136,45 @@ class VideoInferenceProcessor:
             model_name = model['name']
             logger.info(f"\n▶ Running inference with {model_name}...")
             
+            # Get inference parameters from config
+            inference_config = self.config['inference']
+            temperature = inference_config.get('temperature', 0.0)
+            max_tokens = inference_config.get('max_tokens', 1024)
+            top_k = inference_config.get('top_k')
+            top_p = inference_config.get('top_p')
+            
             try:
                 client = self.api_clients[model_name]
+                
+                # Measure inference time
+                start_time = time.time()
                 response = client.infer_video(
                     video_url=video_url,
                     system_prompt=system_prompt,
-                    max_tokens=self.config['inference'].get('max_tokens', 1024),
-                    temperature=self.config['inference'].get('temperature', 0.0)
+                    max_tokens=max_tokens,
+                    temperature=temperature
                 )
+                inference_time = time.time() - start_time
                 
                 if response:
                     results['models'][model_name] = {
                         'status': 'success',
-                        'response': response
+                        'response': response,
+                        'inference_time': inference_time
                     }
                     self.csv_handler.save_result(
                         video_name=video_path.name,
                         model_name=model_name,
                         model_path=model['model_path'],
                         response=response,
-                        status='success'
+                        status='success',
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        top_k=top_k,
+                        top_p=top_p,
+                        inference_time_seconds=inference_time
                     )
-                    logger.info(f"✓ {model_name} completed successfully")
+                    logger.info(f"✓ {model_name} completed in {inference_time:.2f}s")
                 else:
                     results['models'][model_name] = {
                         'status': 'error',
@@ -168,7 +186,11 @@ class VideoInferenceProcessor:
                         model_path=model['model_path'],
                         response=None,
                         status='error',
-                        error_message='API returned no response'
+                        error_message='API returned no response',
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        top_k=top_k,
+                        top_p=top_p
                     )
                     logger.error(f"✗ {model_name} failed to process video")
                     
@@ -184,7 +206,11 @@ class VideoInferenceProcessor:
                     model_path=model['model_path'],
                     response=None,
                     status='error',
-                    error_message=str(e)
+                    error_message=str(e),
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    top_k=top_k,
+                    top_p=top_p
                 )
         
         return results
@@ -248,7 +274,11 @@ class VideoInferenceProcessor:
             logger.info(f"\nVideo: {result['video_name']}")
             for model_name, model_result in result['models'].items():
                 status = model_result['status'].upper()
-                logger.info(f"  {model_name}: {status}")
+                inference_time = model_result.get('inference_time', None)
+                if inference_time:
+                    logger.info(f"  {model_name}: {status} ({inference_time:.2f}s)")
+                else:
+                    logger.info(f"  {model_name}: {status}")
         
         # CSV summary
         csv_summary = self.csv_handler.summary()

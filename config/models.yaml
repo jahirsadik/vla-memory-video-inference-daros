@@ -1,11 +1,11 @@
-models:
-  - name: "Qwen3-VL-8B"
-    model_path: "Qwen/Qwen3-VL-8B-Instruct"
-    port: 30000
-    host: "localhost"
-    attention_backend: "flashinfer"
-    mm_attention_backend: "flashinfer"
-    enabled: true
+# models:
+#   - name: "Qwen3-VL-8B"
+#     model_path: "Qwen/Qwen3-VL-8B-Instruct"
+#     port: 30000
+#     host: "localhost"
+#     attention_backend: "flashinfer"
+#     mm_attention_backend: "flashinfer"
+#     enabled: true
 
   # Add more models below
   # - name: "Llava-1.6"
@@ -16,10 +16,48 @@ models:
   #   mm_attention_backend: "flashinfer"
   #   enabled: false
 
+models:
+  - name: "Qwen3-VL-8B"
+    model_path: "Qwen/Qwen3-VL-8B-Instruct"
+    port: 30000
+    enabled: false
+
+  - name: "InternVL2.5-26B"
+    model_path: "OpenGVLab/InternVL2_5-26B"
+    port: 30001
+    enabled: false
+
+  - name: "LLaVA-Video-7B"
+    model_path: "lmms-lab/LLaVA-Video-7B-Qwen2"
+    port: 30002
+    enabled: false
+
+  - name: "Llama-3.2-Vision"
+    model_path: "meta-llama/Llama-3.2-11B-Vision-Instruct"
+    port: 30003
+    enabled: false  # Gated model - needs HF token
+
+  - name: "Pixtral-12B"
+    model_path: "mistralai/Pixtral-12B-2409"
+    port: 30004
+    enabled: false
+
+  - name: "Molmo-7B"
+    model_path: "allenai/Molmo-7B-D-0924"
+    port: 30005
+    enabled: true
+
+  - name: "MiniCPM-V-2.6"
+    model_path: "openbmb/MiniCPM-V-2_6"
+    port: 30006
+    enabled: false
+
 inference:
-  max_tokens: 1024
-  temperature: 0.0  # Set to 0 for precise counting tasks
-  timeout: 60  # seconds
+  max_tokens: 2048
+  temperature: 0.1  # Set to 0 for precise counting tasks
+  top_k: null       # Set to integer to limit top-k sampling (e.g., 50)
+  top_p: null       # Set to float for nucleus sampling (e.g., 0.9)
+  timeout: 120       # seconds
 
 directories:
   videos: "./videos"
